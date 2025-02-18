@@ -12,6 +12,32 @@
                 pause: 5000,
             });
         });
+     
+document.addEventListener("DOMContentLoaded", function () {
+    let dropdowns = document.querySelectorAll(".dropdown");
+
+    dropdowns.forEach(function (dropdown) {
+        dropdown.addEventListener("click", function (event) {
+            event.preventDefault();
+            let menu = this.querySelector(".dropdown-menu");
+            if (menu.style.display === "block") {
+                menu.style.display = "none";
+            } else {
+                menu.style.display = "block";
+            }
+        });
+    });
+
+    // 外部クリックで閉じる
+    document.addEventListener("click", function (event) {
+        dropdowns.forEach(function (dropdown) {
+            if (!dropdown.contains(event.target)) {
+                let menu = dropdown.querySelector(".dropdown-menu");
+                menu.style.display = "none";
+            }
+        });
+    });
+});
 </script>
 
 
