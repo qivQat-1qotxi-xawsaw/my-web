@@ -72,11 +72,7 @@ translate: -50% -50%;
         .image-container img:hover {
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
- body { font-family: Arial, sans-serif; background-color: #d3ffd3; }
-        .container { width: 80%; margin: auto; padding: 20px; text-align: center; }
-        .video-container { margin-bottom: 20px; display: none; } /* 初期状態で非表示 */
-        button { padding: 10px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-
+ 
 </style>
 
 
@@ -92,71 +88,57 @@ integrity="sha512-..." crossorigin="anonymous" />
   <br>
 <body>
 
-<div class="container">
-    <h2>ファイナルファンタジーX</h2>
-    <div id="songList">
-        <!-- 初期の4曲（最初は非表示） -->
-        <div class="video-container">
-            <h3>ザナルカンドにて</h3>
-            <iframe width="560" height="315"  src="https://www.youtube.com/embed/yK4bAnafj2Q?si=M4sSSfDPSLt9FnDx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        </div>
-        <div class="video-container">
-            <h3>リュックのテーマ</h3>
-            <iframe width="560" height="315"   src="https://www.youtube.com/embed/5A0bE-MkvRY?si=2o_snjaB-fadYUQJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            <h3>ビサイド島</h3>
-            <iframe width="560" height="315" src="https://youtu.be/i0peWwGB_zE?si=_1msBRpQszsdSzYf">
-        <div class="video-container">
-            <h3>祈りのうた</h3>
-            <iframe width="560" height="315"  src="https://www.youtube.com/embed/b_7D6xtvpiA?si=pNYpUVeY5SR1eiS6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        </div>
-    </div>
+<h3>ザナルカンドにて</h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yK4bAnafj2Q?si=O_BC7UezFLDQTEuX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
+
+ピアノだけで作曲された原曲をほぼそのままに、ピアノ曲として演奏に達成感を持たせられるよう、よりドラマチックなアレンジがされています。<br>
+もの悲しげなメロディーと訴えかけるような情熱を持つ信仰に留意して演奏してください。
+
+
+
+
+<h3>リュックのテーマ</h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5A0bE-MkvRY?si=VndGh2ODpH8oLH0B" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
+この作品の中で難易度が最も低いものとされていますが、メリハリをしっかりつけて弾かないとつまらないものになってしまいます。<br>
+かわいらしい部分と憂鬱な雰囲気の部分の違いを感じ取り、そのバランスを巧く保って演奏してください。
+
+<br>
+<body>
+
+<h3>ビサイド島</h3>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/i0peWwGB_zE?si=GM6KHd_5JP1um00-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
+原曲とは違ってテンポが速く難易度も高いために変奏曲としての印象が強いですが、豪州を誘うような４７ぬきの旋律や和声による演出は、<br>
+原曲に非常に忠実で純粋なアレンジとなっています。<br>
+ただ単に動きのある曲としてではなく、このようなポイントを引き出せるように気持ちを込めて演奏してください。
+
+
+<h3>祈りのうた</h3>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/b_7D6xtvpiA?si=JdlcvR1c0XJ1DlxR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
+ファイナルファンタジーXで最も多く使用された[祈りのうた]のモチーフがここでもさまざまな<br>
+手法で鍵盤を賑わせています。随所にこのモチーフが登場するので、注意して譜面に目を通すことで<br>
+より深い演奏ができるでしょう。
+
+<script>
+    function addSong() {
+        let songList = document.getElementById("songList");
+        
+        // YouTube埋め込みコードを生成
+        let newSongDiv = document.createElement("div");
+        newSongDiv.className = "video-container";
+        newSongDiv.innerHTML = `
+            <h3>新しい曲</h3>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+        `;
+
+        songList.appendChild(newSongDiv);
+    }
+</script>
 
     <button onclick="showNextSong()">曲を追加</button>
 </div>
 
-<script>
-    let songIndex = 0;
-    let hiddenSongs = document.querySelectorAll(".video-container");
 
-    // 追加用の新しい曲リスト（ボタンを押すとこのリストの曲が無限追加される）
-    let additionalSongs = [
-        { title: "新しい曲A", videoId: "ZPao0wKG3xE" },
-        { title: "新しい曲B", videoId: "xWBD83WWfjc" },
-        { title: "新しい曲C", videoId: "dQw4w9WgXcQ" } // お好きな動画IDを追加
-    ];
-
-    function showNextSong() {
-        if (songIndex < hiddenSongs.length) {
-            // 隠されている曲を順番に表示
-            hiddenSongs[songIndex].style.display = "block";
-            songIndex++;
-        } else {
-            // すべての曲を表示し終えたら、新しい曲を追加する
-            addSong();
-        }
-    }
-
-    function addSong() {
-        let songList = document.getElementById("songList");
-
-        if (songIndex - hiddenSongs.length < additionalSongs.length) {
-            let songData = additionalSongs[songIndex - hiddenSongs.length];
-
-            let newSongDiv = document.createElement("div");
-            newSongDiv.className = "video-container";
-            newSongDiv.style.display = "block"; // 追加した曲はすぐに表示
-            newSongDiv.innerHTML = `
-                <h3>${songData.title}</h3>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/${songData.videoId}" frameborder="0" allowfullscreen></iframe>
-            `;
-
-            songList.appendChild(newSongDiv);
-            songIndex++;
-        } else {
-            alert("もう追加できる曲がありません！");
-        }
-    }
-</script>
 
 
 
