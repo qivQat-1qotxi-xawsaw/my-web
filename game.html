@@ -73,6 +73,11 @@ translate: -50% -50%;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
+                body { font-family: Arial, sans-serif; background-color: #d3ffd3; }
+        .container { width: 80%; margin: auto; padding: 20px; }
+        .video-container { margin-bottom: 20px; }
+        button { padding: 10px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+
 </style>
 
 
@@ -90,14 +95,19 @@ integrity="sha512-..." crossorigin="anonymous" />
 
 
 
-<h3>ザナルカンドにて</h3>
+ function addSong() {
+        let songList = document.getElementById("songList");
+        
+        // YouTube埋め込みコードを生成
+        let newSongDiv = document.createElement("div");
+        newSongDiv.className = "video-container";
+        newSongDiv.innerHTML = `
+            <h3>ファイナルファンタジーX</h3>
+      <h3>ザナルカンドにて</h3>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yK4bAnafj2Q?si=O_BC7UezFLDQTEuX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
 
 ピアノだけで作曲された原曲をほぼそのままに、ピアノ曲として演奏に達成感を持たせられるよう、よりドラマチックなアレンジがされています。<br>
 もの悲しげなメロディーと訴えかけるような情熱を持つ信仰に留意して演奏してください。
-
-
-
 
 <h3>リュックのテーマ</h3>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5A0bE-MkvRY?si=VndGh2ODpH8oLH0B" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
@@ -105,8 +115,6 @@ integrity="sha512-..." crossorigin="anonymous" />
 かわいらしい部分と憂鬱な雰囲気の部分の違いを感じ取り、そのバランスを巧く保って演奏してください。
 
 <br>
-<body>
-
 <h3>ビサイド島</h3>
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/i0peWwGB_zE?si=GM6KHd_5JP1um00-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br>
@@ -120,6 +128,7 @@ integrity="sha512-..." crossorigin="anonymous" />
 ファイナルファンタジーXで最も多く使用された[祈りのうた]のモチーフがここでもさまざまな<br>
 手法で鍵盤を賑わせています。随所にこのモチーフが登場するので、注意して譜面に目を通すことで<br>
 より深い演奏ができるでしょう。
+</div>
 
 
 
