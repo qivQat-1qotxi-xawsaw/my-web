@@ -163,7 +163,37 @@ translate: -50% -50%;
     display: block;
 }
 
+.ribbon {
+  position: relative;
+  display: inline-block;
+  background: #90ee90; /* 薄い緑 */
+  color: black;
+  font-weight: bold;
+  padding: 10px 20px;
+  font-size: 24px;
+  margin: 30px auto;
+  text-align: center;
+}
 
+.ribbon::before,
+.ribbon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 15px solid transparent;
+  z-index: -1;
+}
+
+.ribbon::before {
+  left: -30px;
+  border-right-color: #90ee90;
+}
+
+.ribbon::after {
+  right: -30px;
+  border-left-color: #90ee90;
+}
 </style>
 
 
@@ -230,7 +260,7 @@ translate: -50% -50%;
 
 </body>
 </html>
-<h1>音楽でつながる心　ピアノを紹介します<h1>
+<h1 class="ribbon">音楽でつながる心　ピアノを紹介します</h1>
 <title>ピアノを紹介します</title>
 <div class="slider">
 <img src="IMG_2192.HEIC" width="300" height="500" alt="">
