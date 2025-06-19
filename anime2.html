@@ -1,0 +1,206 @@
+<!DOCYTYPE html>
+<html lang="ja">
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+
+<script type="text/javascript">
+        $(document).ready(function(){
+            $('.slider').bxSlider({
+                auto: true,
+                pause: 5000,
+            });
+        });
+</script>
+
+
+<style>
+
+
+body{
+ background-color:#98fb98;
+
+}
+
+
+h2{
+ background-color:#555555;
+}
+
+
+
+
+
+
+
+
+
+/* ボタン全体 */
+#page_top {
+width: 100px;
+height: 100px;
+position: fixed;
+right: 10px;
+bottom: 10px;
+background: #e25407;
+border-radius: 50%;
+opacity: 0.6;
+}
+
+/* Font Awesome */
+#page_top::before {
+font-family: "Font Awesome 5 Free";
+font-weight: 900;
+content: '\f0d8';
+font-size: 50px;
+color: rgb(255, 255, 255);
+position: absolute;
+top: 50%;
+left: 50%;
+translate: -50% -50%;
+}
+     .image-container img {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .image-container img:hover {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+/* メニューを中央揃え */
+.navbar {
+    background-color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+/* メニューアイテム */
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.menu li {
+    position: relative;
+    margin: 0 15px;
+}
+
+.menu li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 10px;
+    display: block;
+}
+
+/* ドロップダウンメニュー */
+.menu .dropdown-menu {
+    display: none;  /* 初期状態は非表示 */
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    border-radius: 5px;
+    z-index: 9999;  /* 他の要素より前面に表示 */
+}
+
+/* 各項目 */
+.menu .dropdown-menu li {
+    padding: 10px;
+}
+
+.menu .dropdown-menu li a {
+    color: #333;
+    display: block;
+    padding: 8px 15px;
+}
+
+/* ホバー時にメニューを表示 */
+.menu .dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+
+
+
+</style>
+
+
+
+
+ <meta charset="UTF-8">
+  <div class="image-container">
+ <a href="index.html"><img src="IMG_0719.PNG"width="500" height="300"></a>
+    <nav class="navbar">
+        <ul class="menu">
+            <li class="dropdown">
+                <a href="yougaku.html">洋楽 ▼</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">ポップ</a></li>
+                    <li><a href="#">ロック</a></li>
+                    <li><a href="#">ジャズ</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="game.html">ゲームソング ▼</a>
+                <ul class="dropdown-menu">
+                    <li><a href="KH.html">キングダムハーツ</a></li>
+                    <li><a href="#">アクション</a></li>
+                    <li><a href="#">シューティング</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="ssss.html">クラシック ▼</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">バロック</a></li>
+                    <li><a href="#">ロマン派</a></li>
+                    <li><a href="#">現代音楽</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="taiko.html">太鼓の達人 ▼</a>
+                <ul class="dropdown-menu">
+                    <li><a href="Drum.html">ドラム</a></li>
+                    <li><a href="#">ボーカロイド</a></li>
+                    <li><a href="#">オリジナル楽曲</a></li>
+                 </ul>
+            </li>
+                <li class="dropdown">
+                <a href="anime.html">アニメ ▼</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">アニメソング</a></li>
+                    <li><a href="#">ボーカロイド</a></li>
+                    <li><a href="#">オリジナル楽曲</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+</body>
+    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+integrity="sha512-..." crossorigin="anonymous" />
+  <br>
+  <h1>アニメソングシリーズ2</h1>
+  
+  
+  
+
+</head>
+<h2><center><p.honbun>Copy all rights all rights reserved</center></p></h2>
+
+<body>
+          <a href="#" id="page_top"></a>
+</body>
+
+</html>
