@@ -234,6 +234,20 @@ translate: -50% -50%;
             </li>
         </ul>
     </nav>
+  <div class="slideshow-container">
+        <img class="slides active" src="https://via.placeholder.com/600x400/FF5733/FFFFFF?text=Slide1" alt="Slide 1">
+        <img class="slides" src="https://via.placeholder.com/600x400/33FF57/FFFFFF?text=Slide2" alt="Slide 2">
+        <img class="slides" src="https://via.placeholder.com/600x400/3357FF/FFFFFF?text=Slide3" alt="Slide 3">
+        
+        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+    </div>
+
+    <div class="dots">
+        <span class="dot active-dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+    </div>
 
 </body>
  
@@ -245,6 +259,7 @@ translate: -50% -50%;
 </body>
 
 </html>
+
 
 
 
