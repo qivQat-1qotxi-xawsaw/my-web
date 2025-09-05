@@ -250,7 +250,40 @@ translate: -50% -50%;
     </div>
 
 </body>
- 
+   <script>
+        let slideIndex = 0;
+        showSlides(slideIndex);
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName("slides");
+            let dots = document.getElementsByClassName("dot");
+
+            if (n >= slides.length) { slideIndex = 0; }
+            if (n < 0) { slideIndex = slides.length - 1; }
+
+            for (let slide of slides) {
+                slide.style.display = "none";
+            }
+
+            for (let dot of dots) {
+                dot.classList.remove("active-dot");
+            }
+
+            slides[slideIndex].style.display = "block";
+            dots[slideIndex].classList.add("active-dot");
+        }
+
+        function changeSlide(n) {
+            slideIndex += n;
+            showSlides(slideIndex);
+        }
+
+        function currentSlide(n) {
+            slideIndex = n - 1;
+            showSlides(slideIndex);
+        }
+    </script>
+
 </head>
 <h2><center><p.honbun>Copy all rights all rights reserved</center></p></h2>
 
@@ -259,6 +292,7 @@ translate: -50% -50%;
 </body>
 
 </html>
+
 
 
 
