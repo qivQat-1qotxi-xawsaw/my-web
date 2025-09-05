@@ -130,70 +130,7 @@ translate: -50% -50%;
     display: block;
 }
 
-/* ドロップダウンメニュー */
-.menu .dropdown-menu {
-    display: none;  /* 初期状態は非表示 */
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #ffffff;
-    list-style: none;
-    padding: 10px 0;
-    margin: 0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    width: 180px;
-    border-radius: 5px;
-    z-index: 9999;  /* 他の要素より前面に表示 */
-}
 
-/* 各項目 */
-.menu .dropdown-menu li {
-    padding: 10px;
-}
-
-.menu .dropdown-menu li a {
-    color: #333;
-    display: block;
-    padding: 8px 15px;
-}
-
-/* ホバー時にメニューを表示 */
-.menu .dropdown:hover .dropdown-menu {
-    display: block;
-}
-
-.ribbon {
-  position: relative;
-  display: inline-block;
-  background: #90ee90; /* 薄い緑 */
-  color: black;
-  font-weight: bold;
-  padding: 10px 20px;
-  font-size: 24px;
-  margin: 30px auto;
-  text-align: center;
-}
-
-.ribbon::before,
-.ribbon::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 15px solid transparent;
-  z-index: -1;
-}
-
-.ribbon::before {
-  left: -30px;
-  border-right-color: #90ee90;
-}
-
-.ribbon::after {
-  right: -30px;
-  border-left-color: #90ee90;
-}
 </style>
 
 
@@ -326,6 +263,7 @@ translate: -50% -50%;
 </body>
 
 </html>
+
 
 
 
