@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>音当てゲーム（4択）</title>
+<style>
+:root{
+--bg:#0b1220; --card:#121b2e; --text:#e8eefc; --muted:#9fb0d0;
+--ok:#22c55e; --ng:#ef4444; --accent:#60a5fa;
+}
+*{box-sizing:border-box}
+body{
+margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+background: radial-gradient(1200px 600px at 20% 10%, #172554 0%, transparent 60%),
+radial-gradient(900px 500px at 80% 20%, #0f766e 0%, transparent 55%),
+var(--bg);
+color:var(--text);
+min-height:100vh;
+display:flex; align-items:center; justify-content:center;
+padding:20px;
+}
+.app{
+width:min(920px, 100%);
+display:grid;
+gap:16px;
+grid-template-columns: 1.1fr .9fr;
+}
+@media (max-width: 860px){
+.app{grid-template-columns:1fr}
+}
+.card{
+background: color-mix(in srgb, var(--card) 92%, black 8%);
+border:1px solid rgba(255,255,255,.08);
+border-radius:16px;
+padding:16px;
+box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+h1{margin:0 0 8px; font-size:20px}
+.muted{color:var(--muted); font-size:13px; line-height:1.5}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.spacer{height:8px}
+button{
+border:1px solid rgba(255,255,255,.12);
+background: rgba(255,255,255,.06);
+color:var(--text);
+border-radius:12px;
+padding:10px 12px;
+font-size:14px;
+cursor:pointer;
+transition: transform .05s ease, background .15s ease, border-color .15s ease;
+user-select:none;
+}
+button:hover{background: rgba(255,255,255,.10)}
+button:active{transform: translateY(1px)}
+button.primary{
+background: linear-gradient(135deg, rgba(96,165,250,.9), rgba(34,197,94,.75));
+border-color: rgba(255,255,255,.15);
+color:#06121f;
+font-weight:700;
+}
+button.primary:hover{filter: brightness(1.05)}
+button.choice{
+width:100%;
+text-align:left;
+padding:12px 14px;
+display:flex; justify-content:space-between; align-items:center;
+font-weight:600;
+background: rgba(255,255,255,.05);
+}
+button.choice.correct{outline:2px solid color-mix(in srgb, var(--ok) 70%, white 30%)}
+button.choice.wrong{outline:2px solid color-mix(in srgb, var(--ng) 70%, white 30%)}
+.choices{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+@media (max-width: 560px){ .choices{grid-template-columns:1fr} }
+.badge{
+font-size:12px; padding:4px 8px; border-radius:999px;
+border:1px solid rgba(255,255,255,.14);
+background: rgba(255,255,255,.06);
+color:var(--muted);
+}
+.big{
+font-size:44px; font-weight:900; letter-spacing:.02em;
+margin:4px 0 0;
+}
+.status{
+margin-top:10px;
+padding:10px 12px;
+border-radius:12px;
+border:1px dashed rgba(255,255,255,.18);
+background: rgba(255,255,255,.04);
+min-height:44px;
+display:flex; align-items:center;
+}
+label{font-size:13px; color:var(--muted)}
+select, input[type="range"]{
+accent-color: var(--accent);
+}
+select{
+border-radius:10px;
+padding:8px 10px;
+border:1px solid rgba(255,255,255,.12);
+background: rgba(255,255,255,.06);
+color:var(--text);
+}
+.kpi{
+display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;
+margin-top:10px;
+}
+.kpi .box{
+border-radius:14px;
+padding:10px 12px;
+border:1px solid rgba(255,255,255,.08);
+background: rgba(255,255,255,.04);
+}
+.kpi .num{font-size:22px; font-weight:800}
+.kpi .cap{font-size:12px; color:var(--muted)}
+.hint{font-size:12px; color:var(--muted); margin-top:8px}
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="card">
+<div class="row" style="justify-content:space-between">
+<div>
+<h1>🎵 音当てゲーム（4択）</h1>
+<div class="muted">「スタート」→ 音を聴いて、どの音名か当ててね。※最初の再生はユーザー操作が必要です。</div>
+</div>
+<span class="badge" id="modeBadge">モード: 音名</span>
+</div>
+
+<div class="spacer"></div>
+
+<div class="row">
+<button class="primary" id="startBtn">▶ スタート / 次の問題</button>
+<button id="replayBtn" disabled>🔁 もう一回聴く</button>
+<button id="revealBtn" disabled>👀 答えを見る</button>
+</div>
+
+<div class="spacer"></div>
+
+<div class="choices" id="choices"></div>
+
+<div class="status" id="status">
+<span class="muted">準備OK。スタートを押してね。</span>
+</div>
+
+<div class="hint">
+キーボード: <span class="mono">R</span>=再生, <span class="mono">N</span>=次, <span class="mono">A</span>=答え表示
+</div>
+</section>
+
+<aside class="card">
+<div class="row" style="justify-content:space-between; align-items:flex-end">
+<div>
+<div class="muted">スコア</div>
+<div class="big" id="scoreText">0</div>
+<div class="muted">/ <span id="totalText">0</span> 問</div>
+</div>
+<button id="resetBtn">↺ リセット</button>
+</div>
+
+<div class="kpi">
+<div class="box">
+<div class="num" id="accText">—</div>
+<div class="cap">正答率</div>
+</div>
+<div class="box">
+<div class="num" id="streakText">0</div>
+<div class="cap">連続正解</div>
+</div>
+<div class="box">
+<div class="num" id="bestText">0</div>
+<div class="cap">最高連続</div>
+</div>
+</div>
+
+<hr style="border:none; border-top:1px solid rgba(255,255,255,.10); margin:14px 0">
+
+<div class="row" style="justify-content:space-between">
+<label>難易度（音域）</label>
+<select id="rangeSel">
+<option value="easy">かんたん: C4〜B4</option>
+<option value="normal" selected>ふつう: C4〜B5</option>
+<option value="hard">むずい: C3〜B6</option>
+</select>
+</div>
+
+<div class="spacer"></div>
+
+<div class="row" style="justify-content:space-between">
+<label>波形</label>
+<select id="waveSel">
+<option value="sine" selected>サイン（やさしい）</option>
+<option value="triangle">トライアングル</option>
+<option value="square">スクエア</option>
+<option value="sawtooth">ノコギリ</option>
+</select>
+</div>
+
+<div class="spacer"></div>
+
+<div class="row" style="justify-content:space-between">
+<label>テンポ（音の長さ）</label>
+<input id="dur" type="range" min="0.25" max="1.2" step="0.05" value="0.6" />
+<span class="badge"><span id="durVal">0.60</span>s</span>
+</div>
+
+<div class="spacer"></div>
+
+<div class="row" style="justify-content:space-between">
+<label>モード</label>
+<select id="modeSel">
+<option value="name" selected>音名（ドレミ）</option>
+<option value="key">鍵盤位置（白鍵/黒鍵）</option>
+</select>
+</div>
+
+<div class="hint">
+※「鍵盤位置」モードは “この音は黒鍵か？” のような簡易版です（音感トレ用）。
+</div>
+</aside>
+</div>
+
+<script>
+(() => {
+// ====== Audio (Web Audio API) ======
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+
+function ensureAudio(){
+if(!ctx) ctx = new AudioCtx();
+if(ctx.state === "suspended") ctx.resume();
+}
+
+function beep({freq=440, duration=0.6, type="sine", gain=0.18}){
+ensureAudio();
+const t0 = ctx.currentTime;
+
+const osc = ctx.createOscillator();
+const g = ctx.createGain();
+
+osc.type = type;
+osc.frequency.setValueAtTime(freq, t0);
+
+// Attack/Release
+g.gain.setValueAtTime(0.0001, t0);
+g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
+g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+
+osc.connect(g).connect(ctx.destination);
+osc.start(t0);
+osc.stop(t0 + duration + 0.02);
+}
+
+function sfx(ok){
+// short clicky sound
+ensureAudio();
+const base = ok ? 880 : 220;
+beep({freq: base, duration: 0.12, type:"triangle", gain:0.12});
+beep({freq: ok ? 1320 : 180, duration: 0.14, type:"sine", gain:0.10});
+}
+
+// ====== Notes ======
+// Japanese solfege mapping
+const solfege = ["ド","ド#","レ","レ#","ミ","ファ","ファ#","ソ","ソ#","ラ","ラ#","シ"];
+const letter = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const isBlack = [false,true,false,true,false,false,true,false,true,false,true,false];
+
+// MIDI to frequency
+const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+
+const ranges = {
+easy: {min: 60, max: 71}, // C4..B4
+normal: {min: 60, max: 83}, // C4..B5
+hard: {min: 48, max: 95}, // C3..B6
+};
+
+// ====== State ======
+let current = null; // {midi, pc}
+let locked = false;
+
+const state = {
+score: 0,
+total: 0,
+streak: 0,
+best: 0,
+mode: "name",
+};
+
+// ====== UI ======
+const startBtn = document.getElementById("startBtn");
+const replayBtn = document.getElementById("replayBtn");
+const revealBtn = document.getElementById("revealBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+const rangeSel = document.getElementById("rangeSel");
+const waveSel = document.getElementById("waveSel");
+const modeSel = document.getElementById("modeSel");
+const modeBadge= document.getElementById("modeBadge");
+
+const dur = document.getElementById("dur");
+const durVal = document.getElementById("durVal");
+
+const choicesEl = document.getElementById("choices");
+const statusEl = document.getElementById("status");
+
+const scoreText = document.getElementById("scoreText");
+const totalText = document.getElementById("totalText");
+const accText = document.getElementById("accText");
+const streakText= document.getElementById("streakText");
+const bestText = document.getElementById("bestText");
+
+function setStatus(html){
+statusEl.innerHTML = html;
+}
+
+function updateScore(){
+scoreText.textContent = state.score;
+totalText.textContent = state.total;
+streakText.textContent = state.streak;
+bestText.textContent = state.best;
+accText.textContent = state.total ? Math.round(state.score/state.total*100) + "%" : "—";
+}
+
+function clearChoiceStyles(){
+[...choicesEl.querySelectorAll("button.choice")].forEach(b=>{
+b.classList.remove("correct","wrong");
+b.disabled = false;
+});
+}
+
+function disableChoices(){
+[...choicesEl.querySelectorAll("button.choice")].forEach(b=> b.disabled = true);
+}
+
+function noteLabel(pc){
+// show solfege and letter
+return `${solfege[pc]}（${letter[pc]}）`;
+}
+
+// ====== Question generation ======
+function randInt(a,b){ // inclusive
+return Math.floor(Math.random()*(b-a+1))+a;
+}
+
+function shuffle(arr){
+for(let i=arr.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[arr[i],arr[j]]=[arr[j],arr[i]];
+}
+return arr;
+}
+
+function pickQuestion(){
+const r = ranges[rangeSel.value];
+const midi = randInt(r.min, r.max);
+const pc = ((midi % 12) + 12) % 12;
+return {midi, pc};
+}
+
+function buildChoices(answerPc){
+if(state.mode === "name"){
+const pool = [...Array(12)].map((_,i)=>i);
+const wrongs = shuffle(pool.filter(x=>x!==answerPc)).slice(0,3);
+const options = shuffle([answerPc, ...wrongs]);
+return options.map(pc => ({
+key: pc,
+text: noteLabel(pc),
+isCorrect: pc === answerPc
+}));
+} else {
+// key mode: "白鍵" vs "黒鍵" + 2ダミー（ちょいひっかけ）
+const correct = isBlack[answerPc] ? "黒鍵" : "白鍵";
+const wrong = isBlack[answerPc] ? "白鍵" : "黒鍵";
+const options = shuffle([
+{key:"k1", text: correct, isCorrect:true},
+{key:"k2", text: wrong, isCorrect:false},
+{key:"k3", text: "わからない（保留）", isCorrect:false},
+{key:"k4", text: "もう一回聴く", isCorrect:false},
+]);
+return options;
+}
+}
+
+function renderChoices(list){
+choicesEl.innerHTML = "";
+list.forEach(opt=>{
+const b = document.createElement("button");
+b.className = "choice";
+b.innerHTML = `<span>${opt.text}</span><span class="badge">選ぶ</span>`;
+b.addEventListener("click", () => onAnswer(b, opt));
+choicesEl.appendChild(b);
+});
+}
+
+function playCurrent(){
+if(!current) return;
+beep({
+freq: mtof(current.midi),
+duration: parseFloat(dur.value),
+type: waveSel.value,
+gain: 0.20
+});
+}
+
+function newRound(){
+locked = false;
+current = pickQuestion();
+const list = buildChoices(current.pc);
+renderChoices(list);
+clearChoiceStyles();
+replayBtn.disabled = false;
+revealBtn.disabled = false;
+setStatus(`<span class="muted">音を聴いて答えてね。ヒントなし！</span>`);
+playCurrent();
+}
+
+// ====== Answer handling ======
+function onAnswer(btn, opt){
+if(locked) return;
+if(!current) return;
+
+// Special buttons in key-mode
+if(state.mode === "key" && (opt.text === "もう一回聴く")){
+sfx(true);
+playCurrent();
+return;
+}
+
+locked = true;
+state.total++;
+
+let correct = false;
+if(state.mode === "name"){
+correct = opt.isCorrect;
+} else {
+const ans = isBlack[current.pc] ? "黒鍵" : "白鍵";
+correct = (opt.text === ans);
+}
+
+if(correct){
+state.score++;
+state.streak++;
+state.best = Math.max(state.best, state.streak);
+btn.classList.add("correct");
+setStatus(`<span style="color:var(--ok); font-weight:800;">正解！</span> <span class="muted">答えは ${noteLabel(current.pc)} だよ。</span>`);
+sfx(true);
+} else {
+state.streak = 0;
+btn.classList.add("wrong");
+// mark correct option in name mode
+if(state.mode === "name"){
+[...choicesEl.querySelectorAll("button.choice")].forEach((b,i)=>{
+const t = b.textContent;
+if(t.includes(solfege[current.pc])) b.classList.add("correct");
+});
+}
+setStatus(`<span style="color:var(--ng); font-weight:800;">不正解…</span> <span class="muted">答えは ${noteLabel(current.pc)}。</span>`);
+sfx(false);
+}
+
+disableChoices();
+updateScore();
+}
+
+// ====== Controls ======
+startBtn.addEventListener("click", () => {
+ensureAudio();
+newRound();
+});
+
+replayBtn.addEventListener("click", () => {
+ensureAudio();
+playCurrent();
+});
+
+revealBtn.addEventListener("click", () => {
+if(!current) return;
+ensureAudio();
+setStatus(`<span class="muted">答えは <b>${noteLabel(current.pc)}</b>。</span>`);
+// slight neutral sfx
+beep({freq: 520, duration: 0.10, type:"sine", gain:0.08});
+});
+
+resetBtn.addEventListener("click", () => {
+state.score = 0; state.total = 0; state.streak = 0; state.best = 0;
+current = null;
+choicesEl.innerHTML = "";
+replayBtn.disabled = true;
+revealBtn.disabled = true;
+setStatus(`<span class="muted">リセットしました。スタートを押してね。</span>`);
+updateScore();
+});
+
+dur.addEventListener("input", () => {
+durVal.textContent = parseFloat(dur.value).toFixed(2);
+});
+
+modeSel.addEventListener("change", () => {
+state.mode = modeSel.value;
+modeBadge.textContent = "モード: " + (state.mode === "name" ? "音名" : "鍵盤位置");
+// if a round exists, rerender choices (keep same note)
+if(current){
+locked = false;
+renderChoices(buildChoices(current.pc));
+clearChoiceStyles();
+setStatus(`<span class="muted">モードを切り替えたよ。音は同じ問題のまま。</span>`);
+}
+});
+
+// Keyboard shortcuts
+window.addEventListener("keydown", (e) => {
+const k = e.key.toLowerCase();
+if(k === "r") replayBtn.click();
+if(k === "n") startBtn.click();
+if(k === "a") revealBtn.click();
+});
+
+// initial
+durVal.textContent = parseFloat(dur.value).toFixed(2);
+state.mode = modeSel.value;
+modeBadge.textContent = "モード: 音名";
+updateScore();
+})();
+</script>
+</body>
+</html>
