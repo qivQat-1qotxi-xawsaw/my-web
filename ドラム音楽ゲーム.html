@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ドラム音楽ゲーム</title>
+<style>
+* {
+box-sizing: border-box;
+}
+
+body {
+margin: 0;
+font-family: "Arial", sans-serif;
+background: linear-gradient(180deg, #101426, #1b2340);
+color: #fff;
+text-align: center;
+overflow: hidden;
+}
+
+h1 {
+margin: 16px 0 8px;
+font-size: 2rem;
+}
+
+.top-bar {
+display: flex;
+justify-content: center;
+gap: 24px;
+flex-wrap: wrap;
+margin-bottom: 10px;
+font-size: 1.1rem;
+}
+
+.controls {
+margin-bottom: 10px;
+color: #cfd8ff;
+font-size: 0.95rem;
+}
+
+.game-container {
+width: 920px;
+max-width: 96vw;
+height: 70vh;
+min-height: 500px;
+margin: 0 auto 20px;
+position: relative;
+background: #0b0f1d;
+border: 4px solid #4a62d8;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 0 25px rgba(84, 125, 255, 0.25);
+}
+
+.lanes {
+display: flex;
+width: 100%;
+height: 100%;
+position: relative;
+}
+
+.lane {
+flex: 1;
+border-right: 1px solid rgba(255,255,255,0.1);
+position: relative;
+background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+}
+
+.lane:last-child {
+border-right: none;
+}
+
+.lane-label {
+position: absolute;
+top: 10px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 1rem;
+font-weight: bold;
+color: #c5d1ff;
+background: rgba(0,0,0,0.3);
+padding: 4px 10px;
+border-radius: 999px;
+z-index: 3;
+}
+
+.hit-line {
+position: absolute;
+bottom: 80px;
+left: 0;
+width: 100%;
+height: 6px;
+background: #ffd54a;
+box-shadow: 0 0 12px rgba(255, 213, 74, 0.9);
+z-index: 2;
+}
+
+.note {
+position: absolute;
+width: 70%;
+height: 24px;
+left: 15%;
+border-radius: 12px;
+z-index: 2;
+box-shadow: 0 0 12px rgba(255,255,255,0.2);
+}
+
+.snare { background: #ff6b6b; }
+.kick { background: #4ecdc4; }
+.hihat { background: #ffd166; color: #000; }
+.tom { background: #a78bfa; }
+
+.drum-pads {
+position: absolute;
+bottom: 10px;
+left: 0;
+width: 100%;
+display: flex;
+z-index: 3;
+padding: 0 8px;
+gap: 8px;
+}
+
+.pad {
+flex: 1;
+height: 58px;
+line-height: 58px;
+border-radius: 14px;
+font-weight: bold;
+font-size: 1rem;
+border: 2px solid rgba(255,255,255,0.2);
+transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+user-select: none;
+}
+
+.pad.snare { background: rgba(255, 107, 107, 0.25); }
+.pad.kick { background: rgba(78, 205, 196, 0.25); }
+.pad.hihat { background: rgba(255, 209, 102, 0.25); }
+.pad.tom { background: rgba(167, 139, 250, 0.25); }
+
+.pad.active {
+transform: scale(0.97);
+box-shadow: 0 0 18px rgba(255,255,255,0.45);
+filter: brightness(1.35);
+}
+
+.judge {
+position: absolute;
+top: 70px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 2rem;
+font-weight: bold;
+z-index: 5;
+pointer-events: none;
+opacity: 0;
+text-shadow: 0 0 12px rgba(255,255,255,0.6);
+}
+
+.judge.show {
+animation: popJudge 0.45s ease;
+}
+
+@keyframes popJudge {
+0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.7); }
+20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
+100% { opacity: 0; transform: translateX(-50%) translateY(-16px) scale(1); }
+}
+
+.start-screen, .end-screen {
+position: absolute;
+inset: 0;
+background: rgba(5, 8, 18, 0.92);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+z-index: 10;
+padding: 20px;
+}
+
+.hidden {
+display: none;
+}
+
+button {
+border: none;
+background: #5b7cff;
+color: white;
+padding: 12px 22px;
+border-radius: 12px;
+font-size: 1rem;
+cursor: pointer;
+margin-top: 12px;
+box-shadow: 0 8px 18px rgba(91, 124, 255, 0.28);
+}
+
+button:hover {
+filter: brightness(1.08);
+}
+
+.small {
+color: #cfd8ff;
+margin-top: 8px;
+font-size: 0.95rem;
+line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+h1 { font-size: 1.5rem; }
+.top-bar { gap: 12px; font-size: 1rem; }
+.game-container { height: 72vh; min-height: 440px; }
+.pad { font-size: 0.9rem; height: 54px; line-height: 54px; }
+.judge { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+<h1>🥁 ドラム音楽ゲーム</h1>
+
+<div class="top-bar">
+<div>Score: <span id="score">0</span></div>
+<div>Combo: <span id="combo">0</span></div>
+<div>Max Combo: <span id="maxCombo">0</span></div>
+</div>
+
+<div class="controls">
+操作キー：F = Snare / G = Kick / H = Hi-Hat / J = Tom
+</div>
+
+<div class="game-container" id="game">
+<div class="judge" id="judgeText"></div>
+
+<div class="lanes">
+<div class="lane" data-lane="0">
+<div class="lane-label">Snare (F)</div>
+</div>
+<div class="lane" data-lane="1">
+<div class="lane-label">Kick (G)</div>
+</div>
+<div class="lane" data-lane="2">
+<div class="lane-label">Hi-Hat (H)</div>
+</div>
+<div class="lane" data-lane="3">
+<div class="lane-label">Tom (J)</div>
+</div>
+</div>
+
+<div class="hit-line"></div>
+
+<div class="drum-pads">
+<div class="pad snare" id="pad0">F</div>
+<div class="pad kick" id="pad1">G</div>
+<div class="pad hihat" id="pad2">H</div>
+<div class="pad tom" id="pad3">J</div>
+</div>
+
+<div class="start-screen" id="startScreen">
+<h2>スタート準備OK？</h2>
+<div class="small">
+流れてくるノーツをタイミングよく叩こう。<br>
+キーボード F / G / H / J でプレイできます。
+</div>
+<button id="startBtn">ゲーム開始</button>
+</div>
+
+<div class="end-screen hidden" id="endScreen">
+<h2>ゲーム終了！</h2>
+<div class="small" id="finalResult"></div>
+<button id="retryBtn">もう一度遊ぶ</button>
+</div>
+</div>
+
+<script>
+const lanes = document.querySelectorAll(".lane");
+const scoreEl = document.getElementById("score");
+const comboEl = document.getElementById("combo");
+const maxComboEl = document.getElementById("maxCombo");
+const judgeText = document.getElementById("judgeText");
+const startScreen = document.getElementById("startScreen");
+const endScreen = document.getElementById("endScreen");
+const finalResult = document.getElementById("finalResult");
+const startBtn = document.getElementById("startBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const laneClasses = ["snare", "kick", "hihat", "tom"];
+const keyMap = {
+"f": 0,
+"g": 1,
+"h": 2,
+"j": 3
+};
+
+let score = 0;
+let combo = 0;
+let maxCombo = 0;
+let notes = [];
+let gameStarted = false;
+let gameEnded = false;
+let startTime = 0;
+let animationId = null;
+
+const hitLineY = 420;
+const noteSpeed = 280; // px / sec
+const songLength = 24; // 秒
+
+// デモ用譜面
+const chart = [
+{ time: 1.0, lane: 2 },
+{ time: 1.4, lane: 0 },
+{ time: 1.8, lane: 1 },
+{ time: 2.2, lane: 2 },
+{ time: 2.6, lane: 0 },
+{ time: 3.0, lane: 3 },
+{ time: 3.4, lane: 2 },
+{ time: 3.8, lane: 0 },
+{ time: 4.2, lane: 1 },
+{ time: 4.6, lane: 2 },
+
+{ time: 5.0, lane: 0 },
+{ time: 5.2, lane: 2 },
+{ time: 5.4, lane: 0 },
+{ time: 5.8, lane: 1 },
+{ time: 6.2, lane: 3 },
+{ time: 6.6, lane: 2 },
+{ time: 7.0, lane: 0 },
+{ time: 7.4, lane: 1 },
+{ time: 7.8, lane: 2 },
+
+{ time: 8.2, lane: 0 },
+{ time: 8.6, lane: 2 },
+{ time: 9.0, lane: 1 },
+{ time: 9.4, lane: 3 },
+{ time: 9.8, lane: 2 },
+{ time: 10.2, lane: 0 },
+{ time: 10.6, lane: 1 },
+{ time: 11.0, lane: 2 },
+
+{ time: 11.4, lane: 0 },
+{ time: 11.6, lane: 2 },
+{ time: 11.8, lane: 0 },
+{ time: 12.2, lane: 1 },
+{ time: 12.6, lane: 3 },
+{ time: 13.0, lane: 2 },
+{ time: 13.4, lane: 0 },
+{ time: 13.8, lane: 1 },
+{ time: 14.2, lane: 2 },
+
+{ time: 14.6, lane: 3 },
+{ time: 15.0, lane: 0 },
+{ time: 15.4, lane: 2 },
+{ time: 15.8, lane: 1 },
+{ time: 16.2, lane: 0 },
+{ time: 16.6, lane: 3 },
+{ time: 17.0, lane: 2 },
+{ time: 17.4, lane: 0 },
+{ time: 17.8, lane: 1 },
+
+{ time: 18.2, lane: 2 },
+{ time: 18.6, lane: 0 },
+{ time: 19.0, lane: 3 },
+{ time: 19.4, lane: 2 },
+{ time: 19.8, lane: 1 },
+{ time: 20.2, lane: 0 },
+{ time: 20.6, lane: 2 },
+{ time: 21.0, lane: 3 },
+{ time: 21.4, lane: 1 },
+{ time: 21.8, lane: 0 },
+{ time: 22.2, lane: 2 },
+{ time: 22.6, lane: 3 },
+{ time: 23.0, lane: 1 }
+];
+
+function resetGame() {
+score = 0;
+combo = 0;
+maxCombo = 0;
+notes = [];
+gameStarted = false;
+gameEnded = false;
+startTime = 0;
+
+scoreEl.textContent = score;
+comboEl.textContent = combo;
+maxComboEl.textContent = maxCombo;
+judgeText.textContent = "";
+
+document.querySelectorAll(".note").forEach(n => n.remove());
+endScreen.classList.add("hidden");
+startScreen.classList.remove("hidden");
+
+if (animationId) cancelAnimationFrame(animationId);
+}
+
+function createNotes() {
+chart.forEach((item, index) => {
+const note = document.createElement("div");
+note.classList.add("note", laneClasses[item.lane]);
+lanes[item.lane].appendChild(note);
+
+notes.push({
+id: index,
+lane: item.lane,
+time: item.time,
+hit: false,
+judged: false,
+el: note
+});
+});
+}
+
+function startGame() {
+resetStatsOnly();
+createNotes();
+startScreen.classList.add("hidden");
+startTime = performance.now();
+gameStarted = true;
+loop();
+}
+
+function resetStatsOnly() {
+score = 0;
+combo = 0;
+maxCombo = 0;
+notes = [];
+gameEnded = false;
+
+scoreEl.textContent = score;
+comboEl.textContent = combo;
+maxComboEl.textContent = maxCombo;
+judgeText.textContent = "";
+document.querySelectorAll(".note").forEach(n => n.remove());
+}
+
+function showJudge(text) {
+judgeText.textContent = text;
+judgeText.classList.remove("show");
+void judgeText.offsetWidth;
+judgeText.classList.add("show");
+}
+
+function updateScore(judge) {
+if (judge === "PERFECT") {
+score += 100;
+combo++;
+} else if (judge === "GOOD") {
+score += 50;
+combo++;
+} else {
+combo = 0;
+}
+
+if (combo > maxCombo) maxCombo = combo;
+
+scoreEl.textContent = score;
+comboEl.textContent = combo;
+maxComboEl.textContent = maxCombo;
+}
+
+function judgeHit(lane) {
+if (!gameStarted || gameEnded) return;
+
+const currentTime = (performance.now() - startTime) / 1000;
+
+const candidates = notes.filter(n =>
+n.lane === lane && !n.judged
+);
+
+if (candidates.length === 0) {
+showJudge("MISS");
+updateScore("MISS");
+playDrumSound(lane);
+flashPad(lane);
+return;
+}
+
+let bestNote = null;
+let bestDiff = Infinity;
+
+candidates.forEach(note => {
+const diff = Math.abs(note.time - currentTime);
+if (diff < bestDiff) {
+bestDiff = diff;
+bestNote = note;
+}
+});
+
+playDrumSound(lane);
+flashPad(lane);
+
+if (!bestNote) return;
+
+if (bestDiff <= 0.12) {
+bestNote.hit = true;
+bestNote.judged = true;
+bestNote.el.remove();
+showJudge("PERFECT");
+updateScore("PERFECT");
+} else if (bestDiff <= 0.22) {
+bestNote.hit = true;
+bestNote.judged = true;
+bestNote.el.remove();
+showJudge("GOOD");
+updateScore("GOOD");
+} else {
+showJudge("MISS");
+updateScore("MISS");
+}
+}
+
+function loop() {
+if (!gameStarted || gameEnded) return;
+
+const currentTime = (performance.now() - startTime) / 1000;
+
+notes.forEach(note => {
+if (note.judged) return;
+
+const diff = note.time - currentTime;
+const y = hitLineY - diff * noteSpeed;
+
+note.el.style.top = `${y}px`;
+
+if (currentTime - note.time > 0.25 && !note.judged) {
+note.judged = true;
+note.el.remove();
+showJudge("MISS");
+updateScore("MISS");
+}
+});
+
+if (currentTime >= songLength) {
+endGame();
+return;
+}
+
+animationId = requestAnimationFrame(loop);
+}
+
+function endGame() {
+gameEnded = true;
+gameStarted = false;
+
+finalResult.innerHTML = `
+最終スコア: <b>${score}</b><br>
+最大コンボ: <b>${maxCombo}</b>
+`;
+endScreen.classList.remove("hidden");
+}
+
+function flashPad(lane) {
+const pad = document.getElementById(`pad${lane}`);
+pad.classList.add("active");
+setTimeout(() => pad.classList.remove("active"), 90);
+}
+
+// Web Audio APIで簡易ドラム音
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContextClass();
+
+function playDrumSound(lane) {
+const now = audioCtx.currentTime;
+
+if (lane === 0) {
+// Snare
+const bufferSize = audioCtx.sampleRate * 0.15;
+const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+const data = buffer.getChannelData(0);
+
+for (let i = 0; i < bufferSize; i++) {
+data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+}
+
+const noise = audioCtx.createBufferSource();
+noise.buffer = buffer;
+
+const filter = audioCtx.createBiquadFilter();
+filter.type = "highpass";
+filter.frequency.value = 1000;
+
+const gain = audioCtx.createGain();
+gain.gain.setValueAtTime(0.8, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(audioCtx.destination);
+noise.start(now);
+noise.stop(now + 0.15);
+
+} else if (lane === 1) {
+// Kick
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+osc.type = "sine";
+osc.frequency.setValueAtTime(140, now);
+osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+
+gain.gain.setValueAtTime(1.0, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start(now);
+osc.stop(now + 0.13);
+
+} else if (lane === 2) {
+// Hi-Hat
+const bufferSize = audioCtx.sampleRate * 0.08;
+const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+const data = buffer.getChannelData(0);
+
+for (let i = 0; i < bufferSize; i++) {
+data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+}
+
+const noise = audioCtx.createBufferSource();
+noise.buffer = buffer;
+
+const filter = audioCtx.createBiquadFilter();
+filter.type = "highpass";
+filter.frequency.value = 5000;
+
+const gain = audioCtx.createGain();
+gain.gain.setValueAtTime(0.5, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(audioCtx.destination);
+noise.start(now);
+noise.stop(now + 0.07);
+
+} else if (lane === 3) {
+// Tom
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+osc.type = "triangle";
+osc.frequency.setValueAtTime(220, now);
+osc.frequency.exponentialRampToValueAtTime(110, now + 0.18);
+
+gain.gain.setValueAtTime(0.8, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start(now);
+osc.stop(now + 0.18);
+}
+}
+
+document.addEventListener("keydown", async (e) => {
+const key = e.key.toLowerCase();
+if (!(key in keyMap)) return;
+
+if (audioCtx.state === "suspended") {
+await audioCtx.resume();
+}
+
+judgeHit(keyMap[key]);
+});
+
+startBtn.addEventListener("click", async () => {
+if (audioCtx.state === "suspended") {
+await audioCtx.resume();
+}
+startGame();
+});
+
+retryBtn.addEventListener("click", () => {
+resetGame();
+});
+
+resetGame();
+</script>
+</body>
+</html>
