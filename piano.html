@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>音が出るピアノタイルゲーム</title>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+background: linear-gradient(180deg, #0f172a, #1e293b);
+color: white;
+display: flex;
+flex-direction: column;
+align-items: center;
+min-height: 100vh;
+padding: 20px;
+}
+
+h1 {
+margin-bottom: 10px;
+font-size: 2rem;
+}
+
+.info {
+display: flex;
+gap: 16px;
+margin-bottom: 15px;
+flex-wrap: wrap;
+justify-content: center;
+}
+
+.panel {
+background: rgba(255,255,255,0.12);
+padding: 10px 16px;
+border-radius: 12px;
+backdrop-filter: blur(6px);
+box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.buttons {
+margin-bottom: 15px;
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+justify-content: center;
+}
+
+button {
+border: none;
+padding: 12px 18px;
+border-radius: 10px;
+font-size: 1rem;
+cursor: pointer;
+background: #38bdf8;
+color: #0f172a;
+font-weight: bold;
+transition: 0.2s;
+}
+
+button:hover {
+transform: translateY(-2px);
+opacity: 0.95;
+}
+
+#game {
+position: relative;
+width: 360px;
+height: 600px;
+background: white;
+border: 5px solid #0ea5e9;
+overflow: hidden;
+border-radius: 16px;
+box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.lane {
+position: absolute;
+top: 0;
+bottom: 0;
+width: 25%;
+border-left: 1px solid #ccc;
+border-right: 1px solid #ccc;
+}
+
+.lane:nth-child(1) { left: 0; }
+.lane:nth-child(2) { left: 25%; }
+.lane:nth-child(3) { left: 50%; }
+.lane:nth-child(4) { left: 75%; }
+
+.tile {
+position: absolute;
+width: 25%;
+height: 120px;
+background: #111827;
+border-radius: 0 0 10px 10px;
+cursor: pointer;
+box-shadow: inset 0 -4px 0 rgba(255,255,255,0.08);
+}
+
+.tile.hit {
+background: #22c55e;
+}
+
+.hit-line {
+position: absolute;
+bottom: 110px;
+left: 0;
+width: 100%;
+height: 4px;
+background: #ef4444;
+box-shadow: 0 0 10px rgba(239,68,68,0.7);
+}
+
+.message {
+margin-top: 14px;
+min-height: 28px;
+font-size: 1rem;
+text-align: center;
+}
+
+.guide {
+margin-top: 10px;
+font-size: 0.95rem;
+opacity: 0.9;
+text-align: center;
+line-height: 1.6;
+}
+
+@media (max-width: 420px) {
+#game {
+width: 92vw;
+height: 72vh;
+}
+}
+</style>
+</head>
+<body>
+<h1>🎹 音が出るピアノタイルゲーム</h1>
+
+<div class="info">
+<div class="panel">スコア: <span id="score">0</span></div>
+<div class="panel">ベスト: <span id="best">0</span></div>
+<div class="panel">スピード: <span id="speed">3</span></div>
+</div>
+
+<div class="buttons">
+<button id="startBtn">スタート</button>
+<button id="restartBtn">リスタート</button>
+</div>
+
+<div id="game">
+<div class="lane"></div>
+<div class="lane"></div>
+<div class="lane"></div>
+<div class="lane"></div>
+<div class="hit-line"></div>
+</div>
+
+<div class="message" id="message">スタートを押して始めてください</div>
+<div class="guide">
+黒いタイルをタップ / クリックしてください。<br>
+パソコンではキー操作も可能です：<b>D F J K</b>
+</div>
+
+<script>
+const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const speedEl = document.getElementById("speed");
+const messageEl = document.getElementById("message");
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+
+let tiles = [];
+let score = 0;
+let speed = 3;
+let isRunning = false;
+let spawnTimer = null;
+let animationId = null;
+let audioCtx = null;
+
+const tileHeight = 120;
+const lanes = 4;
+const hitLineY = () => game.clientHeight - 110;
+const bestScore = localStorage.getItem("pianoTilesBest") || 0;
+bestEl.textContent = bestScore;
+
+function initAudio() {
+if (!audioCtx) {
+audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+if (audioCtx.state === "suspended") {
+audioCtx.resume();
+}
+}
+
+function playTone(freq = 440, duration = 0.18) {
+if (!audioCtx) return;
+
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+osc.type = "sine";
+osc.frequency.value = freq;
+
+gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.01);
+gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+osc.stop(audioCtx.currentTime + duration);
+}
+
+const notes = [261.63, 293.66, 329.63, 392.00]; // C4 D4 E4 G4
+
+function createTile() {
+const lane = Math.floor(Math.random() * lanes);
+const tile = document.createElement("div");
+tile.className = "tile";
+tile.style.left = `${lane * 25}%`;
+tile.style.top = `${-tileHeight}px`;
+tile.dataset.lane = lane;
+tile.dataset.hit = "false";
+
+tile.addEventListener("click", () => hitTile(tile));
+tile.addEventListener("touchstart", (e) => {
+e.preventDefault();
+hitTile(tile);
+}, { passive: false });
+
+game.appendChild(tile);
+tiles.push({ el: tile, y: -tileHeight, lane });
+}
+
+function hitTile(tileEl) {
+if (!isRunning) return;
+if (tileEl.dataset.hit === "true") return;
+
+const tileObj = tiles.find(t => t.el === tileEl);
+if (!tileObj) return;
+
+const tileCenter = tileObj.y + tileHeight / 2;
+const distance = Math.abs(tileCenter - hitLineY());
+
+if (distance < 100) {
+tileEl.dataset.hit = "true";
+tileEl.classList.add("hit");
+score++;
+if (score % 5 === 0) speed += 0.4;
+
+scoreEl.textContent = score;
+speedEl.textContent = speed.toFixed(1);
+
+playTone(notes[tileObj.lane], 0.2);
+
+setTimeout(() => {
+removeTile(tileObj);
+}, 80);
+} else {
+gameOver("タイミングミス！");
+}
+}
+
+function removeTile(tileObj) {
+if (tileObj.el.parentNode) {
+tileObj.el.parentNode.removeChild(tileObj.el);
+}
+tiles = tiles.filter(t => t !== tileObj);
+}
+
+function update() {
+if (!isRunning) return;
+
+for (let i = tiles.length - 1; i >= 0; i--) {
+const tile = tiles[i];
+tile.y += speed;
+tile.el.style.top = `${tile.y}px`;
+
+if (tile.y > game.clientHeight) {
+gameOver("タイルを押し逃しました！");
+return;
+}
+}
+
+animationId = requestAnimationFrame(update);
+}
+
+function startGame() {
+initAudio();
+resetGame();
+isRunning = true;
+messageEl.textContent = "ゲーム中！黒いタイルを押そう";
+spawnTimer = setInterval(createTile, 700);
+update();
+}
+
+function resetGame() {
+clearInterval(spawnTimer);
+cancelAnimationFrame(animationId);
+
+tiles.forEach(t => {
+if (t.el.parentNode) t.el.parentNode.removeChild(t.el);
+});
+tiles = [];
+
+score = 0;
+speed = 3;
+scoreEl.textContent = score;
+speedEl.textContent = speed;
+isRunning = false;
+}
+
+function gameOver(text) {
+isRunning = false;
+clearInterval(spawnTimer);
+cancelAnimationFrame(animationId);
+
+if (score > Number(localStorage.getItem("pianoTilesBest") || 0)) {
+localStorage.setItem("pianoTilesBest", score);
+bestEl.textContent = score;
+}
+
+playTone(180, 0.35);
+messageEl.textContent = `ゲームオーバー：${text}　スコア ${score}`;
+}
+
+startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", startGame);
+
+document.addEventListener("keydown", (e) => {
+if (!isRunning) return;
+
+const keyMap = {
+d: 0,
+f: 1,
+j: 2,
+k: 3
+};
+
+const lane = keyMap[e.key.toLowerCase()];
+if (lane === undefined) return;
+
+let targetTile = null;
+let minDistance = Infinity;
+
+tiles.forEach(tile => {
+if (tile.lane === lane && tile.el.dataset.hit === "false") {
+const distance = Math.abs((tile.y + tileHeight / 2) - hitLineY());
+if (distance < minDistance) {
+minDistance = distance;
+targetTile = tile.el;
+}
+}
+});
+
+if (targetTile) {
+hitTile(targetTile);
+} else {
+gameOver("何もない場所を押しました！");
+}
+});
+</script>
+</body>
+</html>
